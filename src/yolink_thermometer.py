@@ -21,14 +21,10 @@ class YoLinkThermometer:
         }
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.post(self.api_url, json=payload, headers=headers)
-        print(f"API request payload: {payload}")  # Debugging line
-        print(f"API request headers: {headers}")  # Debugging line
-        print(f"API response: {response}")  
 
         # Check if the response is successful
         if response.status_code == 200:
             data = response.json()
-            print(f"API response: {data}")  # Debugging line
             temp_c = data.get("data", {}).get("state", {}).get("temperature")
             if temp_c is not None:
                 return temp_c * 9 / 5 + 32  # Convert Celsius to Fahrenheit
