@@ -12,7 +12,7 @@ ac-controller-app
 │   ├── yolink_thermometer.py  # YoLinkThermometer class for temperature readings
 │   ├── yolink_token_manager.py# YoLinkUACTokenManager for UAC token handling
 │   ├── yolink_device_utils.py # Utility for fetching device tokens
-│   └── config.py              # Configuration settings
+│   └── config.json            # Configuration settings
 ├── requirements.txt           # Project dependencies
 └── README.md                  # Project documentation
 ```
@@ -32,36 +32,32 @@ ac-controller-app
 
 ## Configuration
 
-Before running the application, configure the `config.py` file with your YoLink UAC credentials (`secret_key`, `client_uaid`), the device IDs for your outlet and thermometer, the desired temperature range, and the polling frequency (in seconds).
+The application uses a JSON config file at `src/config.json` for runtime settings. An example config is provided as `src/example_config.json`.
 
-### How to Find Your Device IDs and UAC Credentials
+- Only `TEMP_RANGE` and `POLLING_FREQUENCY` changes take effect without restart.
+- All other changes require restarting the application.
+- **Do not commit your `config.json`!** It is ignored by `.gitignore`.
 
-- **Device IDs:**
-  1. Open the YoLink mobile app on your phone.
-  2. Tap on your outlet or thermometer device.
-  3. Tap the three dots (menu) in the upper right.
-  4. The `Device EUI` will be shown in the details screen. Copy this value for use in your config.
-
-- **UAC Credentials (secret_key and client_uaid):**
-  1. In the YoLink app, go to "Account" > "Advanced Settings" > "User Access Credentials".
-  2. Tap the plus sign to generate your `secret_key` and `client_uaid` (UAID).
-  3. Copy these values for use in your config.
-  4. For more details, see the [YoLink UAC Quick Start Guide](http://doc.yosmart.com/docs/overall/qsg_uac).
-
-Example `config.py`:
-```python
-TEMP_RANGE = {
-    "min": 70,  # Minimum desired temperature in Fahrenheit
-    "max": 75   # Maximum desired temperature in Fahrenheit
-}
-POLLING_FREQUENCY = 300  # seconds (5 minutes)
-YOLINK_OUTLET = {"device_id": "your_outlet_device_id"}
-YOLINK_THERMOMETER = {"device_id": "your_thermometer_device_id"}
-YOLINK_TOKENS = {
-    "secret_key": "your_secret_key",
-    "client_uaid": "your_client_uaid"
+### Example `src/example_config.json`
+```json
+{
+  "TEMP_RANGE": { "min": 70, "max": 75 },
+  "POLLING_FREQUENCY": 60,
+  "YOLINK_OUTLET": {
+    "device_id": "YOUR_OUTLET_DEVICE_ID"
+  },
+  "YOLINK_THERMOMETER": {
+    "device_id": "YOUR_THERMOMETER_DEVICE_ID"
+  },
+  "YOLINK_TOKENS": {
+    "secret_key": "YOUR_SECRET_KEY",
+    "client_uaid": "YOUR_CLIENT_UAID"
+  }
 }
 ```
+
+- Copy `src/example_config.json` to `src/config.json` and fill in your device IDs and credentials.
+- See comments in the example for which fields are hot-reloadable.
 
 ## Usage
 

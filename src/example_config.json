@@ -1,0 +1,14 @@
+{
+  "TEMP_RANGE": { "min": 70, "max": 75 },
+  "POLLING_FREQUENCY": 60,
+  "YOLINK_OUTLET": {
+    "device_id": "YOUR_OUTLET_DEVICE_ID"
+  },
+  "YOLINK_THERMOMETER": {
+    "device_id": "YOUR_THERMOMETER_DEVICE_ID"
+  },
+  "YOLINK_TOKENS": {
+    "secret_key": "YOUR_SECRET_KEY",
+    "client_uaid": "YOUR_CLIENT_UAID"
+  }
+}
