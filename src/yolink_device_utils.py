@@ -1,6 +1,5 @@
 import requests
 import time
-from config import YOLINK_TOKENS
 
 def get_device_tokens(device_ids, token_manager):   
     """
