@@ -1,82 +1,97 @@
-# AC Controller Application
+# SmartAC Controller
 
-This project is designed to automate the control of a window unit air conditioner using a YoLink Wi-Fi outlet and a YoLink Wi-Fi thermometer. The application monitors the temperature and powers the air conditioner on or off based on user-defined temperature ranges.
+A Python application to control a window unit air conditioner using YoLink WiFi outlet and thermometer, with support for scheduled temperature ranges.
 
-## Project Structure
+## Features
 
-```
-ac-controller-app
-├── src
-│   ├── main.py                # Entry point of the application
-│   ├── yolink_outlet.py       # YoLinkOutlet class for outlet control
-│   ├── yolink_thermometer.py  # YoLinkThermometer class for temperature readings
-│   ├── yolink_token_manager.py# YoLinkUACTokenManager for UAC token handling
-│   ├── yolink_device_utils.py # Utility for fetching device tokens
-│   └── config.json            # Configuration settings
-├── requirements.txt           # Project dependencies
-└── README.md                  # Project documentation
-```
-
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd ac-controller-app
-   ```
-
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+- Supports multiple temperature schedules per day (UTC, HH:MM format).
+- Reads configuration from `config.json` on every polling loop (change temperature or polling frequency without restart).
+- Uses YoLink OpenAPI V2 (UAC) for secure device control.
+- Graceful handling of disabled schedules and overlapping schedule detection.
 
 ## Configuration
 
-The application uses a JSON config file at `src/config.json` for runtime settings. An example config is provided as `src/example_config.json`.
+1. **Copy and edit the example config:**
 
-- Only `TEMP_RANGE` and `POLLING_FREQUENCY` changes take effect without restart.
-- All other changes require restarting the application.
-- **Do not commit your `config.json`!** It is ignored by `.gitignore`.
+   ```sh
+   cp src/example_config.json src/config.json
+   ```
 
-### Example `src/example_config.json`
-```json
-{
-  "TEMP_RANGE": { "min": 70, "max": 75 },
-  "POLLING_FREQUENCY": 60,
-  "YOLINK_OUTLET": {
-    "device_id": "YOUR_OUTLET_DEVICE_ID"
-  },
-  "YOLINK_THERMOMETER": {
-    "device_id": "YOUR_THERMOMETER_DEVICE_ID"
-  },
-  "YOLINK_TOKENS": {
-    "secret_key": "YOUR_SECRET_KEY",
-    "client_uaid": "YOUR_CLIENT_UAID"
-  }
-}
-```
+2. **Edit `src/config.json`:**
 
-- Copy `src/example_config.json` to `src/config.json` and fill in your device IDs and credentials.
-- See comments in the example for which fields are hot-reloadable.
+   - Fill in your YoLink device IDs and UAC credentials (see below).
+   - Define your desired schedules in the `SCHEDULES` array.
+   - Only changes to `SCHEDULES.TEMP_RANGE` and `POLLING_FREQUENCY` take effect without restart.
 
-## Usage
+   Example:
+   ```json
+   {
+     "SCHEDULES": [
+       {
+         "START_TIME": "00:00",
+         "END_TIME": "08:00",
+         "TEMP_RANGE": { "min": 72, "max": 74 },
+         "ENABLE": true
+       },
+       {
+         "START_TIME": "08:00",
+         "END_TIME": "18:00",
+         "TEMP_RANGE": { "min": 75, "max": 78 }
+       },
+       {
+         "START_TIME": "18:00",
+         "END_TIME": "23:59",
+         "TEMP_RANGE": { "min": 70, "max": 72 },
+         "ENABLE": false
+       }
+     ],
+     "POLLING_FREQUENCY": 300,
+     "YOLINK_OUTLET": {
+       "device_id": "your_outlet_device_id"
+     },
+     "YOLINK_THERMOMETER": {
+       "device_id": "your_thermometer_device_id"
+     },
+     "YOLINK_TOKENS": {
+       "secret_key": "your_secret_key",
+       "client_uaid": "your_client_uaid"
+     }
+   }
+   ```
 
-To start the application, run the following command:
-```
-python src/main.py
-```
+## How to Find Your Device IDs and UAC Credentials
 
-The application will monitor the temperature and control the air conditioner based on the specified temperature range, checking every `POLLING_FREQUENCY` seconds.
+- **Device IDs:**  
+  Open the YoLink app, select your device, and look for the Device ID in the device details.
 
-## Notes
-- The application uses YoLink OpenAPI V2 (UAC) for secure access.
-- Device tokens are automatically fetched at startup using `Home.getDeviceList`.
-- Both the outlet and thermometer require their device tokens for API calls.
+- **UAC Credentials (secret key and client uaid):**  
+  In the YoLink app, go to Account > Developer Center > User Authorization Code (UAC).  
+  Copy your `client_uaid` and `secret_key` from there.
 
-## YoLink API Documentation
-- [YoLink OpenAPI V2 (UAC) Documentation](http://doc.yosmart.com/docs/protocol/openAPIV2)
+## Schedule Rules
+
+- Schedules use UTC time in `HH:MM` format.
+- If schedules overlap, the program logs an error and exits.
+- If a schedule has `"ENABLE": false`, the outlet is always turned off during that period.
+- If there are empty periods, the previous schedule's setting continues.
+
+## Running
+
+1. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+2. Run the controller:
+   ```sh
+   python src/main.py
+   ```
+
+## API Documentation
+
+- [YoLink OpenAPI V2 Docs](http://doc.yosmart.com/docs/protocol/openAPIV2)
 - [YoLink UAC Quick Start Guide](http://doc.yosmart.com/docs/overall/qsg_uac)
-- [YoLink API Main Docs](http://doc.yosmart.com/docs/overall/intro)
+- [YoLink API Overview](http://doc.yosmart.com/docs/overall/intro/)
 
 ## License
 
