@@ -1,5 +1,6 @@
 import requests
 import time
+import logging
 
 class YoLinkUACTokenManager:
     def __init__(self, secret_key, client_uaid):
@@ -15,7 +16,7 @@ class YoLinkUACTokenManager:
         if self.token and now < self.token_expiry - 60:
             return self.token
         if self.refresh_token:
-            print("Using refresh token to obtain YoLink UAC token.")
+            logging.info("Using refresh token to obtain YoLink UAC token.")
             # Use refresh_token to get a new access token
             payload = {
                 "grant_type": "refresh_token",
@@ -23,7 +24,7 @@ class YoLinkUACTokenManager:
                 "client_id": self.client_uaid
             }
         else:
-            print("Using client credentials to obtain YoLink UAC token for the first time.")
+            logging.info("Using client credentials to obtain YoLink UAC token for the first time.")
             # Use client credentials for the first time
             payload = {
                 "grant_type": "client_credentials",
@@ -37,6 +38,6 @@ class YoLinkUACTokenManager:
             self.token_expiry = now + int(data.get("expires_in", 3600))
             if "refresh_token" in data:
                 self.refresh_token = data["refresh_token"]
-            print(f"YoLink UAC token successfully obtained, expires in {self.token_expiry - now} seconds.")
+            logging.info(f"YoLink UAC token successfully obtained, expires in {self.token_expiry - now} seconds.")
             return self.token
         raise Exception(f"Failed to get YoLink UAC token: {response.text}")
