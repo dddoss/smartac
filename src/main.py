@@ -128,10 +128,12 @@ def main():
         if temp is not None:
             if temp > temp_max:
                 logging.info("Turning outlet ON.")
-                outlet.power_on()
+                if not outlet.power_on():
+                    logging.error("Failed to turn outlet ON.")
             elif temp < temp_min:
                 logging.info("Turning outlet OFF.")
-                outlet.power_off()
+                if not outlet.power_off():
+                    logging.error("Failed to turn outlet OFF.")
         else:
             logging.warning("Could not read temperature.")
         logging.info(f"Sleeping for {polling_frequency} seconds.")

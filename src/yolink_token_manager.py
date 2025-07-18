@@ -31,13 +31,19 @@ class YoLinkUACTokenManager:
                 "client_secret": self.secret_key,
                 "client_id": self.client_uaid
             }
-        response = requests.post(self.token_url, data=payload)
-        if response.status_code == 200:
-            data = response.json()
-            self.token = data.get("access_token")
-            self.token_expiry = now + int(data.get("expires_in", 3600))
-            if "refresh_token" in data:
-                self.refresh_token = data["refresh_token"]
-            logging.info(f"YoLink UAC token successfully obtained, expires in {self.token_expiry - now} seconds.")
-            return self.token
-        raise Exception(f"Failed to get YoLink UAC token: {response.text}")
+        try:
+            response = requests.post(self.token_url, data=payload)
+            if response.status_code == 200:
+                data = response.json()
+                self.token = data.get("access_token")
+                self.token_expiry = now + int(data.get("expires_in", 3600))
+                if "refresh_token" in data:
+                    self.refresh_token = data["refresh_token"]
+                logging.info(f"YoLink UAC token successfully obtained, expires in {self.token_expiry - now} seconds.")
+                return self.token
+            else:
+                logging.error(f"YoLinkUACTokenManager get_token error: HTTP {response.status_code} {response.text}")
+                return None
+        except Exception as e:
+            logging.error(f"YoLinkUACTokenManager get_token exception: {e}")
+            return None
