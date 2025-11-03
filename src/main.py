@@ -123,14 +123,18 @@ def main():
 
         temp_min = sched["TEMP_RANGE"]["min"]
         temp_max = sched["TEMP_RANGE"]["max"]
+        mode_cool = (sched[get("MODE", "COOL")] == "COOL")
+        mode_heat = (sched[get("MODE", "INVALID")] == "HEAT")
+        if mode_cool == mode_heat:
+            logging.error("Invalid mode provided. Must be COOL or HEAT. Assuming COOL as default.")
         temp = thermometer.get_temperature()
         logging.info(f"Current temperature: {temp}°F, Schedule: {sched['START_TIME']}-{sched['END_TIME']} ({temp_min}-{temp_max}°F)")
         if temp is not None:
-            if temp > temp_max:
+            if (temp > temp_max and mode_cool) or (temp < temp_min and mode_heat):
                 logging.info("Turning outlet ON.")
                 if not outlet.power_on():
                     logging.error("Failed to turn outlet ON.")
-            elif temp < temp_min:
+            elif (temp < temp_min and mode_cool) or (temp > temp_max and mode_cool):
                 logging.info("Turning outlet OFF.")
                 if not outlet.power_off():
                     logging.error("Failed to turn outlet OFF.")

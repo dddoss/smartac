@@ -10,6 +10,7 @@
       "START_TIME": "08:00",
       "END_TIME": "18:00",
       "TEMP_RANGE": { "min": 72.5, "max": 74.5 }
+      "MODE": "COOL"
     },
     {
       "START_TIME": "18:00",
